@@ -14,7 +14,9 @@ import sys
 sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
 from sklearn.cluster import KMeans
+import numpy as np
 import math
+from sklearn.preprocessing import MinMaxScaler
 
 
 
@@ -47,15 +49,38 @@ data_dict.pop("TOTAL", 0)
 
 min_val = 9999999999999999999999999999
 max_val = 0
+esosList = list()
+salaryList = list()
 for key in data_dict:
     eso = data_dict[key]['salary']
-    print "Key ",key," ESO ",eso
+    salary = data_dict[key]['salary']
+    esoVal = data_dict[key]['exercised_stock_options']
+    # print "Key ",key," Salary  ",salary
+    if not math.isnan(float(esoVal)):
+        esosList.append(float(esoVal))
+    if not math.isnan(float(salary)):
+        salaryList.append(float(salary))
     if not math.isnan(float(eso)) and eso<min_val:
         min_val = eso
     if not math.isnan(float(eso)) and eso>max_val:
         max_val = eso
+salaryList.append(200000)
+esosList.append(1000000)
 
+esosNP = np.array(esosList)
+esosNP = np.reshape(esosNP,(len(esosList),1))
+salariesNP = np.array(salaryList)
+salariesNP = np.reshape(salariesNP,(len(salaryList),1))
 print "min ",min_val," max ",max_val
+
+row = salariesNP.shape[0]
+col = salariesNP.shape[1]
+
+scaler = MinMaxScaler()
+rescaledSalaries = scaler.fit_transform(salariesNP)
+rescaledESOS = scaler.fit_transform(esosNP)
+print rescaledSalaries
+print rescaledESOS
 
 
 ### the input features we want to use 
